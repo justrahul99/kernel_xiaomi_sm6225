@@ -11,6 +11,9 @@ jobs:
     - name: Checkout kernel source
       uses: actions/checkout@v4
 
+    - name: Set Git safe directory
+      run: git config --global --add safe.directory /github/workspace
+
     - name: Set up MemKernel as a module (M-OUT) with specified name
       run: |
         curl -LSs "https://raw.githubusercontent.com/Poko-Apps/MemKernel/main/kernel/setup.sh" | bash -s M dogi
@@ -22,7 +25,7 @@ jobs:
         NAME: Loganysl
       with:
         arch: arm64
-        compiler: azure-clang / latest
+        compiler: azure
         defconfig: fog-perf_defconfig
         image: Image.gz-dtb
 
