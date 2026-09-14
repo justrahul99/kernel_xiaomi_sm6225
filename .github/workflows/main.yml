@@ -29,10 +29,15 @@ jobs:
         defconfig: vendor/fog-perf_defconfig
         image: Image.gz-dtb
 
-    - name: Upload Kernel and Module
+    - name: Copy Built Kernel and Module to Workspace
+      run: |
+        mkdir -p output_files
+        sudo find / -name "Image.gz-dtb" -exec cp {} output_files/ \; 2>/dev/null || true
+        sudo find / -name "memkernel.ko" -exec cp {} output_files/ \; 2>/dev/null || true
+
+    - name: Upload Kernel Image and Module
       uses: actions/upload-artifact@v4
       with:
-        name: module
-        path: |
-          **/Image.gz-dtb
-          **/memkernel.ko
+        name: Kernel-and-Module-Files
+        path: output_files/
+        if-no-files-found: error
