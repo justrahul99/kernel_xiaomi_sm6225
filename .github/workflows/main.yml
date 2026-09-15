@@ -29,22 +29,20 @@ jobs:
         defconfig: vendor/fog-perf_defconfig
         image: Image.gz-dtb
 
-    - name: Prepare Artifacts
+    - name: Find and Copy Built Files
       run: |
         mkdir -p output_files
-        
-        # ১. বিল্ড অ্যাকশনের নিজস্ব আউটপুট থেকে ফাইল কপি
-        if [ -n "${{ steps.build.outputs.outfile }}" ] && [ -f "${{ steps.build.outputs.outfile }}" ]; then
-          cp "${{ steps.build.outputs.outfile }}" output_files/
-        fi
 
-        # ২. কার্নেল ইমেজ যদি নির্দিষ্ট পাথে থাকে
-        find . -name "Image.gz-dtb" -exec cp {} output_files/ \; 2>/dev/null || true
+        echo "=== Output from build action ==="
+        echo "Outfile step output: ${{ steps.build.outputs.outfile }}"
 
-        # ৩. MemKernel ড্রাইভার মডিউল কপি
-        find . -name "memkernel.ko" -exec cp {} output_files/ \; 2>/dev/null || true
+        echo "=== Searching for Image files ==="
+        find . -type f \( -name "Image*" -o -name "*.ko" \)
 
-        # কন্টেন চেক
+        # ফাইল কপি করা
+        find . -type f \( -name "Image*" -o -name "*.ko" \) -exec cp {} output_files/ \; 2>/dev/null || true
+
+        echo "=== Files copied to output_files ==="
         ls -la output_files/
 
     - name: Upload Kernel Image and Module
@@ -52,3 +50,4 @@ jobs:
       with:
         name: Kernel-and-Module-Files
         path: output_files/
+        if-no-files-found: warn
